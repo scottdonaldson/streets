@@ -30,13 +30,11 @@ class SceneComponent extends React.Component {
 		for ( let i = 0; i < 2; i++ ) {
 
 			let position = {
-				x: 60,
-				z: -60
+				x: Math.random() * 50 - 100,
+				z: Math.random() * 50 - 100
 			};
 
 			let car = Car(position);
-
-			car.setSpeed(0.75);
 
 			cars.push(car);
 
@@ -53,7 +51,9 @@ class SceneComponent extends React.Component {
 			Scene.add(cube);
 		}
 
-		this.setState({ cars });
+		this.setState({ cars }, function() {
+			window.car = _this.state.cars[0];
+		});
 
 		let Plane = new THREE.Mesh(
 			new THREE.PlaneGeometry(10000, 10000),
@@ -140,33 +140,33 @@ class SceneComponent extends React.Component {
 		Light.target = new THREE.Mesh();
 		Scene.add(Light);
 
+
 		(function render() {
 
 			let t = _this.state.t;
 
 			_this.setState({ t: t + 1 });
-
  
 			_this.state.cars.forEach(function(car, i) {
 
 				let q = Math.sin(t / 100);
 
-				// car 1 turns in a circle
-				if ( i === 0 ) {
+				if ( i === 0 && car.getSpeed() > 0.2 ) {
 					car.turn(0.5);
-
-				// car 2 bounces back and forth
-				} else {
-					car.setSpeed( q );
-					car.setDirection({ x: q > 0 ? 1 : -1 });
-					// car.turn(15);
 				}
 
-				car.tick();
-				let loc = car.location();
+				if ( t === 100 ) {
+					car.start(2.5);
+				} else if ( t === 500 ) {
+					car.stop();
+				}
 
+				// render car in 3d
+				let loc = car.getLocation();
 				objects.cars[i].position.set(loc.x, loc.y + 2.5, loc.z);
 				objects.cars[i].rotation.set( 0, car.getAngle(), 0 );
+
+				car.drive();
 			});
 
 			Renderer.render(Scene, Camera);

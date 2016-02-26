@@ -1,12 +1,18 @@
+import _ from 'lodash';
 import Entity from './entity';
 
 let Car = function(obj) {
 
-	let out = Entity(obj);
+	let entity = Entity(obj),
+		tick = entity.tick;
 
-	// car-specific methods?
+	let state = {};
 
-	return out;
+	let drive = tick;
+
+	return _.assign({
+		drive
+	}, entity);
 
 };
 

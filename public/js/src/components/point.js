@@ -28,7 +28,13 @@ const Point = function(obj = {}) {
 		});
 	}
 
-	let out = { add, subtract, scale, unit };
+	function clone() {
+		return Point({
+			x, y, z
+		});
+	}
+
+	let out = { add, subtract, scale, clone };
 
 	Object.defineProperty(out, 'x', { get: () => x });
 	Object.defineProperty(out, 'y', { get: () => y });
@@ -52,6 +58,7 @@ const mid = function(pt1, pt2) {
 
 };
 
+// angle operates in XZ plane only
 const angle = function(pt1, pt2) {
 
 	let a = Math.atan( (pt1.x - pt2.x) / (pt1.z - pt2.z) );
@@ -75,6 +82,12 @@ const distance = function(pt1, pt2) {
 
 };
 
+const dot = function(pt1, pt2) {
+
+	return (pt1.x * pt2.x) + (pt1.y * pt2.y) + (pt1.z * pt2.z);
+
+};
+
 const length = function(pt) {
 
 	return distance(Point(), pt);
@@ -86,9 +99,9 @@ const unit = function(pt) {
 	let f = length(pt);
 
 	return Point({
-		x: pt.x / f,
-		y: pt.y / f,
-		z: pt.z / f
+		x: f !== 0 ? pt.x / f : 1,
+		y: f !== 0 ? pt.y / f : 0,
+		z: f !== 0 ? pt.z / f : 0
 	});
 };
 
@@ -97,6 +110,7 @@ export {
 	mid,
 	angle,
 	distance,
+	dot,
 	length,
 	unit
 };

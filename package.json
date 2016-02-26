@@ -24,7 +24,7 @@
     "express-session": "^1.13.0",
     "jade": "~1.11.0",
     "jquery": "^2.2.0",
-    "lodash": "^4.3.0",
+    "lodash": "^4.5.1",
     "mandrill-api": "^1.0.45",
     "morgan": "~1.6.1",
     "passport": "^0.3.2",
