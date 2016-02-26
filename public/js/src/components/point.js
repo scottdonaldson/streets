@@ -38,6 +38,27 @@ const Point = function(obj = {}) {
 
 };
 
+const mid = function(pt1, pt2) {
+
+	function mean(a, b) {
+		return ( a + b ) / 2;
+	}
+
+	return Point({
+		x: mean(pt1.x, pt2.x),
+		y: mean(pt1.y, pt2.y),
+		z: mean(pt1.z, pt2.z)
+	});
+
+};
+
+const angle = function(pt1, pt2) {
+
+	let a = Math.atan( (pt1.x - pt2.x) / (pt1.z - pt2.z) );
+	return a;
+
+};
+
 const distance = function(pt1, pt2) {
 
 	let x = pt2.x - pt1.x,
@@ -73,6 +94,8 @@ const unit = function(pt) {
 
 export {
 	Point,
+	mid,
+	angle,
 	distance,
 	length,
 	unit

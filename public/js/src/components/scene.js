@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom';
 import THREE from 'three';
 import OrbitControls from 'three-orbit-controls';
 
+import { distance, mid, angle } from './point';
 import Car from './car';
+import Segment from './segment';
 
 class SceneComponent extends React.Component {
 	
@@ -22,7 +24,8 @@ class SceneComponent extends React.Component {
 
 		let Scene = new THREE.Scene();
 		let cars = [];
-		let objects = { cars: [] };
+		let segments = [];
+		let objects = { cars: [], segments: [] };
 
 		for ( let i = 0; i < 2; i++ ) {
 
@@ -60,14 +63,49 @@ class SceneComponent extends React.Component {
 		Plane.rotation.set( -Math.PI / 2, 0, 0 );
 		Scene.add(Plane);
 
-		let Sphere = new THREE.Mesh(
-			new THREE.SphereGeometry(40, 40, 40),
-			new THREE.MeshStandardMaterial({ 
-				color: '#ee9',
-				metalness: 0
-			})
-		);
-		Scene.add(Sphere);
+		function renderSphere(x = 0, y = 0, z = 0) {
+			let Sphere = new THREE.Mesh(
+				new THREE.SphereGeometry(5, 12, 12),
+				new THREE.MeshStandardMaterial({ 
+					color: '#ee9',
+					metalness: 0
+				})
+			);
+			Sphere.position.set(x, y, z);
+			Scene.add(Sphere);
+		}
+
+		renderSphere();
+		renderSphere(50, 0, 50);
+		renderSphere(100, 0, 0);
+
+		renderSegment({ x: 50 }, { z: 50 });
+		renderSegment({ x: -50 }, { z: 50 });
+		renderSegment({ x: -50 }, { z: -50 });
+		renderSegment({ x: 50 }, { z: -50 });
+		renderSegment({}, { x: 100 });
+
+		function renderSegment(pt1, pt2) {
+			
+			let segment = Segment(pt1, pt2);
+			segments.push(segment);
+
+			pt1 = segment.pt1;
+			pt2 = segment.pt2;
+
+			let street = new THREE.Mesh(
+				new THREE.PlaneGeometry(distance(pt1, pt2), 10),
+				new THREE.MeshLambertMaterial({ color: '#555', side: THREE.DoubleSide })
+			);
+
+			let m = mid(pt1, pt2),
+				a = angle(pt1, pt2);
+			street.rotation.set( -Math.PI / 2, 0, a - Math.PI / 2 );
+			street.position.set(m.x, m.y, m.z); // flipping z and y since we rotate
+			
+			objects.segments.push(street);
+			Scene.add(street);
+		}
 
 		const canvas = ReactDOM.findDOMNode(this);
 
@@ -98,8 +136,8 @@ class SceneComponent extends React.Component {
 		Camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 		let Light = new THREE.DirectionalLight('#eee');
-		Light.position.set(0, 100, 0);
-		Light.target = Sphere;
+		Light.position.set(0, 100, 100);
+		Light.target = new THREE.Mesh();
 		Scene.add(Light);
 
 		(function render() {
@@ -119,10 +157,12 @@ class SceneComponent extends React.Component {
 
 				// car 2 bounces back and forth
 				} else {
+					car.setSpeed( q );
 					car.setDirection({ x: q > 0 ? 1 : -1 });
+					// car.turn(15);
 				}
 
-				car.drive();
+				car.tick();
 				let loc = car.location();
 
 				objects.cars[i].position.set(loc.x, loc.y + 2.5, loc.z);
