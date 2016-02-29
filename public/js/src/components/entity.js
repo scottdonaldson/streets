@@ -9,16 +9,30 @@ let Entity = function(obj) {
 	});
 
 	let direction = unit(Point()); // direction -- must be unit vector
+	let setDirection = vector => direction = vector;
+
 	let speed = 0; // assume no speed initially
 	let acceleration = Point(); // assume no acceleration initially
 
-	let getLocation = () => location;
-	let getDirection = () => direction;
+	let angle = obj.angle;
+	
+	if ( angle && ( angle.x || angle.y || angle.z ) ) {
+		setDirection(angle);
+	} else if ( angle ) {
+		// radians
+		angle *= Math.PI / 180;
+		setDirection({
+			x: Math.cos(angle),
+			z: Math.sin(angle)
+		});
+	}
+
+	let getLocation = () => location.clone();
+	let getDirection = () => direction.clone();
 	let getSpeed = () => speed;
-	let getAcceleration = () => acceleration;
+	let getAcceleration = () => acceleration.clone();
 
 	let setLocation = pt => location = Point(pt);
-	let setDirection = vector => direction = unit(vector);
 	let setSpeed = value => speed = value;
 	let setAcceleration = pt => acceleration = Point(pt);
 
@@ -31,34 +45,32 @@ let Entity = function(obj) {
 				setSpeed(target || 1);
 				setAcceleration( Point() );
 			} else {
-				setAcceleration( unit(direction).scale(0.01) );
+				setAcceleration( getDirection().scale(0.01) );
 			}
 		};
 	};
 
 	let stop = function() {
 
-		console.log('starting to stop');
-
 		onTick._startstop = function() {
 			if ( getSpeed() <= 0 ) {
 				setSpeed(0);
 				setAcceleration( Point() );
 			} else {
-				setAcceleration( unit(direction).scale(-0.01) );
+				setAcceleration( getDirection().scale(-0.01) );
 			}
 		};
 	};
 
-	let tick = function(cb) {
+	let tick = function(callback) {
 
 		// based on current conditions (speed and direction), set new location
 		// mutates location but not direction
-		location.add( direction.clone().scale(speed) );
+		location.add( getDirection().scale(speed) );
 
 		// set new direction and speed based on current acceleration
-		direction = unit( direction.clone().add(acceleration) );
-		speed += dot(acceleration, direction);
+		setDirection( getDirection().add(acceleration) );
+		setSpeed( speed + dot(acceleration, direction) );
 
 		for ( let key in onTick ) {
 			let cb = onTick[key];
@@ -66,7 +78,7 @@ let Entity = function(obj) {
 		}
 
 		// optional callback
-		if (cb) cb();
+		if (callback) callback();
 
 	};
 
@@ -75,16 +87,12 @@ let Entity = function(obj) {
 
 		deg *= Math.PI / 180;
 
-		let x = direction.x,
-			y = direction.y,
-			z = direction.z,
-			cos = Math.cos, 
-			sin = Math.sin;
+		let { x, y, z } = getDirection();
 
 		direction = Point({
-			x: x * cos(deg) - z * sin(deg),
+			x: x * Math.cos(deg) - z * Math.sin(deg),
 			y: y,
-			z: x * sin(deg) + z * cos(deg)
+			z: x * Math.sin(deg) + z * Math.cos(deg)
 		});
 	};
 
@@ -101,6 +109,7 @@ let Entity = function(obj) {
 
 	return {
 		tick,
+		onTick,
 		start,
 		stop,
 

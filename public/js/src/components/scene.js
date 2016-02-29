@@ -20,6 +20,8 @@ class SceneComponent extends React.Component {
 
 	init() {
 
+		let CLICKED = false;
+
 		let _this = this;
 
 		let Scene = new THREE.Scene();
@@ -27,14 +29,18 @@ class SceneComponent extends React.Component {
 		let segments = [];
 		let objects = { cars: [], segments: [] };
 
-		for ( let i = 0; i < 2; i++ ) {
+		for ( let i = 0; i < 1; i++ ) {
 
 			let position = {
-				x: Math.random() * 50 - 100,
-				z: Math.random() * 50 - 100
+				// x: Math.random() * 50 - 100,
+				// z: Math.random() * 50 - 100,
+				// angle: Math.random() * 360
 			};
 
-			let car = Car(position);
+			let car = Car(position, Scene);
+
+			// :-)
+			car.casualDrive();
 
 			cars.push(car);
 
@@ -63,7 +69,32 @@ class SceneComponent extends React.Component {
 		Plane.rotation.set( -Math.PI / 2, 0, 0 );
 		Scene.add(Plane);
 
-		function renderSphere(x = 0, y = 0, z = 0) {
+		var geometry = new THREE.Geometry();
+		geometry.vertices.push(
+			new THREE.Vector3( 240, 0, 0 ),
+			new THREE.Vector3( 0, 0, 0 ),
+			new THREE.Vector3( 0, 0, 240 )
+		);
+
+		var material = new THREE.LineBasicMaterial({
+			color: 0x0000ff
+		});
+
+		var line = new THREE.Line( geometry, material );
+		Scene.add( line );
+
+		let Sphere = new THREE.Mesh(
+			new THREE.SphereGeometry(120, 40, 40),
+			new THREE.MeshStandardMaterial({ 
+				color: '#e90',
+				opacity: 0.2,
+				metalness: 0,
+				transparent: true
+			})
+		);
+		Scene.add(Sphere);
+
+		/* function renderSphere(x = 0, y = 0, z = 0) {
 			let Sphere = new THREE.Mesh(
 				new THREE.SphereGeometry(5, 12, 12),
 				new THREE.MeshStandardMaterial({ 
@@ -105,7 +136,7 @@ class SceneComponent extends React.Component {
 			
 			objects.segments.push(street);
 			Scene.add(street);
-		}
+		} */
 
 		const canvas = ReactDOM.findDOMNode(this);
 
@@ -151,7 +182,7 @@ class SceneComponent extends React.Component {
 
 				let q = Math.sin(t / 100);
 
-				if ( i === 0 && car.getSpeed() > 0.2 ) {
+				/* if ( i === 0 && car.getSpeed() > 0.2 ) {
 					car.turn(0.5);
 				}
 
@@ -159,20 +190,22 @@ class SceneComponent extends React.Component {
 					car.start(2.5);
 				} else if ( t === 500 ) {
 					car.stop();
-				}
+				} */
 
 				// render car in 3d
 				let loc = car.getLocation();
 				objects.cars[i].position.set(loc.x, loc.y + 2.5, loc.z);
 				objects.cars[i].rotation.set( 0, car.getAngle(), 0 );
 
-				car.drive();
+				car.tick();
 			});
 
 			Renderer.render(Scene, Camera);
 
-			window.requestAnimationFrame(render);
-			// setTimeout(render, 1000);
+			if ( !CLICKED ) {
+				window.requestAnimationFrame(render);
+				// setTimeout(render, 50);
+			}
 		})();
 
 		function onResize() {
@@ -183,6 +216,8 @@ class SceneComponent extends React.Component {
 		}
 
 		window.addEventListener('resize', onResize);
+
+		// window.addEventListener('click', () => CLICKED = true);
 	}
 
 	componentDidMount() {
