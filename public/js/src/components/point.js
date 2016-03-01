@@ -34,7 +34,11 @@ const Point = function(obj = {}) {
 		});
 	}
 
-	let out = { add, subtract, scale, clone };
+	function log() {
+		console.log(x, y, z);
+	}
+
+	let out = { add, subtract, scale, clone, log };
 
 	Object.defineProperty(out, 'x', { get: () => x });
 	Object.defineProperty(out, 'y', { get: () => y });
@@ -67,6 +71,8 @@ const angle = function(pt1, pt2) {
 };
 
 const distance = function(pt1, pt2) {
+
+	if ( !pt1 || !pt2 ) return null;
 
 	let x = pt2.x - pt1.x,
 		y = pt2.y - pt1.y,
@@ -105,6 +111,14 @@ const unit = function(pt) {
 	});
 };
 
+const deg = function(radians) {
+	return radians * 180 / Math.PI;
+};
+
+const rad = function(degrees) {
+	return degrees * Math.PI / 180;
+};
+
 export {
 	Point,
 	mid,
@@ -112,5 +126,7 @@ export {
 	distance,
 	dot,
 	length,
-	unit
+	unit,
+	deg,
+	rad
 };

@@ -34,7 +34,14 @@ let Entity = function(obj) {
 
 	let setLocation = pt => location = Point(pt);
 	let setSpeed = value => speed = value;
-	let setAcceleration = pt => acceleration = Point(pt);
+	let setAcceleration = function(pt) {
+		// accepts a scalar (continue direction) or vector
+		if ( isNaN(+pt) ) {
+			acceleration = Point(pt);
+		} else {
+			acceleration = getDirection().scale(pt);
+		}
+	};
 
 	let onTick = {};
 

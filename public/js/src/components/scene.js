@@ -14,7 +14,8 @@ class SceneComponent extends React.Component {
 
 		this.state = { 
 			t: 0,
-			cars: [] 
+			cars: [],
+			keysdown: {}
 		};
 	}
 
@@ -40,7 +41,7 @@ class SceneComponent extends React.Component {
 			let car = Car(position, Scene);
 
 			// :-)
-			car.casualDrive();
+			// car.casualDrive();
 
 			cars.push(car);
 
@@ -83,16 +84,16 @@ class SceneComponent extends React.Component {
 		var line = new THREE.Line( geometry, material );
 		Scene.add( line );
 
-		let Sphere = new THREE.Mesh(
-			new THREE.SphereGeometry(120, 40, 40),
-			new THREE.MeshStandardMaterial({ 
-				color: '#e90',
-				opacity: 0.2,
-				metalness: 0,
-				transparent: true
+		let Circle = new THREE.Mesh(
+			new THREE.CircleGeometry(120, 40),
+			new THREE.MeshBasicMaterial({ 
+				color: '#fff',
+				transparent: true,
+				opacity: 0.5
 			})
 		);
-		Scene.add(Sphere);
+		Circle.rotation.set(-Math.PI / 2, 0, 0);
+		Scene.add(Circle);
 
 		/* function renderSphere(x = 0, y = 0, z = 0) {
 			let Sphere = new THREE.Mesh(
@@ -149,6 +150,7 @@ class SceneComponent extends React.Component {
 	        ORBIT: THREE.MOUSE.LEFT,
 	        PAN: THREE.MOUSE.RIGHT
 	    };
+	    controls.enableKeys = false;
 
 	    controls.maxPolarAngle = Math.PI / 2;
 	    controls.maxDistance = 8000;
@@ -192,6 +194,26 @@ class SceneComponent extends React.Component {
 					car.stop();
 				} */
 
+				if ( '38' in _this.state.keysdown ) {
+					car.setAcceleration( 0.01 );
+				}
+
+				if ( '40' in _this.state.keysdown ) {
+					car.setAcceleration( -0.01 );
+				}
+
+				if ( '37' in _this.state.keysdown ) {
+					car.turn( -car.getSpeed() );
+				}
+
+				if ( '39' in _this.state.keysdown ) {
+					car.turn( car.getSpeed() );
+				}
+
+				if ( car.getSpeed() >= 0.5 && !('40' in _this.state.keysdown) ) {
+					car.setAcceleration();
+				}
+
 				// render car in 3d
 				let loc = car.getLocation();
 				objects.cars[i].position.set(loc.x, loc.y + 2.5, loc.z);
@@ -202,10 +224,10 @@ class SceneComponent extends React.Component {
 
 			Renderer.render(Scene, Camera);
 
-			if ( !CLICKED ) {
+			// if ( !CLICKED ) {
 				window.requestAnimationFrame(render);
 				// setTimeout(render, 50);
-			}
+			// }
 		})();
 
 		function onResize() {
@@ -216,6 +238,28 @@ class SceneComponent extends React.Component {
 		}
 
 		window.addEventListener('resize', onResize);
+
+		window.addEventListener('keydown', function(e) {
+
+			e.preventDefault();
+			
+			let keysdown = _this.state.keysdown;
+			
+			keysdown[e.keyCode] = keysdown[e.keyCode] ? keysdown[e.keyCode] + 1 : 1;
+			
+			_this.setState({ keysdown });
+		});
+
+		window.addEventListener('keyup', function(e) {
+
+			e.preventDefault();
+			
+			let keysdown = _this.state.keysdown;
+			
+			if ( e.keyCode in keysdown ) delete keysdown[e.keyCode];
+			
+			_this.setState({ keysdown });
+		});
 
 		// window.addEventListener('click', () => CLICKED = true);
 	}
