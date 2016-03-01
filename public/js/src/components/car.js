@@ -61,7 +61,7 @@ let Car = function(obj, Scene) {
 				entity.turn(0.5);
 			}
 
-			trajectory();
+			// trajectory();
 		};
 
 		window.addEventListener('click', function() {

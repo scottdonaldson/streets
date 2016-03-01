@@ -34,8 +34,9 @@ const Point = function(obj = {}) {
 		});
 	}
 
-	function log() {
-		console.log(x, y, z);
+	function log(i = 2) {
+		let r = n => Math.round(n * Math.pow(10, i)) / Math.pow(10, i);
+		console.log(r(x), r(y), r(z));
 	}
 
 	let out = { add, subtract, scale, clone, log };
@@ -76,7 +77,7 @@ const distance = function(pt1, pt2) {
 
 	let x = pt2.x - pt1.x,
 		y = pt2.y - pt1.y,
-		z = pt2.z - pt2.y;
+		z = pt2.z - pt1.z;
 
 	x = Math.pow(x, 2);
 	y = Math.pow(y, 2);

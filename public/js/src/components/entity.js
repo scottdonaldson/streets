@@ -17,14 +17,14 @@ let Entity = function(obj) {
 	let angle = obj.angle;
 	
 	if ( angle && ( angle.x || angle.y || angle.z ) ) {
-		setDirection(angle);
+		setDirection(Point(angle));
 	} else if ( angle ) {
 		// radians
 		angle *= Math.PI / 180;
-		setDirection({
+		setDirection(Point({
 			x: Math.cos(angle),
 			z: Math.sin(angle)
-		});
+		}));
 	}
 
 	let getLocation = () => location.clone();

@@ -21,7 +21,7 @@ class SceneComponent extends React.Component {
 
 	init() {
 
-		let CLICKED = false;
+		let PAUSE = false;
 
 		let _this = this;
 
@@ -30,18 +30,18 @@ class SceneComponent extends React.Component {
 		let segments = [];
 		let objects = { cars: [], segments: [] };
 
-		for ( let i = 0; i < 1; i++ ) {
+		for ( let i = 0; i < 10; i++ ) {
 
 			let position = {
-				// x: Math.random() * 50 - 100,
-				// z: Math.random() * 50 - 100,
-				// angle: Math.random() * 360
+				x: Math.random() * 50 - 100,
+				z: Math.random() * 50 - 100,
+				angle: Math.random() * 360
 			};
 
 			let car = Car(position, Scene);
 
 			// :-)
-			// car.casualDrive();
+			car.casualDrive();
 
 			cars.push(car);
 
@@ -174,7 +174,7 @@ class SceneComponent extends React.Component {
 		Scene.add(Light);
 
 
-		(function render() {
+		let render = function() {
 
 			let t = _this.state.t;
 
@@ -224,11 +224,13 @@ class SceneComponent extends React.Component {
 
 			Renderer.render(Scene, Camera);
 
-			// if ( !CLICKED ) {
+			if ( !PAUSE ) {
 				window.requestAnimationFrame(render);
 				// setTimeout(render, 50);
-			// }
-		})();
+			}
+		};
+
+		render();
 
 		function onResize() {
 			Camera.aspect = window.innerWidth / window.innerHeight;
@@ -241,15 +243,16 @@ class SceneComponent extends React.Component {
 
 		window.addEventListener('keydown', function(e) {
 
-			e.preventDefault();
-			
-			let keysdown = _this.state.keysdown;
-			
-			keysdown[e.keyCode] = keysdown[e.keyCode] ? keysdown[e.keyCode] + 1 : 1;
-			
-			_this.setState({ keysdown });
+			if ( e.keyCode === 32 ) {
+				if ( PAUSE ) {
+					PAUSE = false;
+					render();
+				} else {
+					PAUSE = true;
+				}
+			}
 		});
-
+		/*
 		window.addEventListener('keyup', function(e) {
 
 			e.preventDefault();
@@ -259,7 +262,7 @@ class SceneComponent extends React.Component {
 			if ( e.keyCode in keysdown ) delete keysdown[e.keyCode];
 			
 			_this.setState({ keysdown });
-		});
+		}); */
 
 		// window.addEventListener('click', () => CLICKED = true);
 	}
